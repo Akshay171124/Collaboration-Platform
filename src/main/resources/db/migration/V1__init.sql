@@ -61,7 +61,7 @@ CREATE TABLE blocks (
   page_id     UUID NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
   type        VARCHAR(30) NOT NULL,
   position    NUMERIC(40,20) NOT NULL,
-  content     JSONB NOT NULL,
+  content     TEXT NOT NULL,
   created_by  UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),

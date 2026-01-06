@@ -4,11 +4,16 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/notionlite
-    username: akshayprajapati
-    password:
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
