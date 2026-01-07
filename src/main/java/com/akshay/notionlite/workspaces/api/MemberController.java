@@ -36,7 +36,7 @@ public class MemberController {
     @PostMapping
     public void add(@PathVariable UUID workspaceId, @RequestBody AddMemberReq req) {
         UUID me = SecurityUtil.currentUserId();
-        var actor = access.requireAtLeast(workspaceId, me, WorkspaceRole.ADMIN);
+        var actor = access.requireAtLeastOr404(workspaceId, me, WorkspaceRole.ADMIN);
 
         membershipService.addMember(workspaceId, me, actor.getRole(), req.email(), req.role());
     }
@@ -44,7 +44,7 @@ public class MemberController {
     @PatchMapping("/{userId}")
     public void updateRole(@PathVariable UUID workspaceId, @PathVariable UUID userId, @RequestBody UpdateMemberRoleReq req) {
         UUID me = SecurityUtil.currentUserId();
-        var actor = access.requireAtLeast(workspaceId, me, WorkspaceRole.ADMIN);
+        var actor = access.requireAtLeastOr404(workspaceId, me, WorkspaceRole.ADMIN);
 
         membershipService.updateRole(workspaceId, me, actor.getRole(), userId, req.role());
     }
@@ -52,7 +52,7 @@ public class MemberController {
     @DeleteMapping("/{userId}")
     public void remove(@PathVariable UUID workspaceId, @PathVariable UUID userId) {
         UUID me = SecurityUtil.currentUserId();
-        var actor = access.requireAtLeast(workspaceId, me, WorkspaceRole.ADMIN);
+        var actor = access.requireAtLeastOr404(workspaceId, me, WorkspaceRole.ADMIN);
 
         membershipService.removeMember(workspaceId, actor.getRole(), userId);
     }

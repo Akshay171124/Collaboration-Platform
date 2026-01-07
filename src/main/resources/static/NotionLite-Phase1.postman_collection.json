@@ -1,0 +1,291 @@
+{
+  "info": {
+    "name": "NotionLite Phase 1 - Happy Path",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "workspaceId", "value": "" },
+    { "key": "pageId", "value": "" },
+    { "key": "blockA", "value": "" },
+    { "key": "blockB", "value": "" },
+    { "key": "blockC", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1) Register User A",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"usera@test.com\",\n  \"password\": \"Password123!\",\n  \"fullName\": \"User A\"\n}"
+        }
+      }
+    },
+    {
+      "name": "2) Login User A (set token)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('login ok', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.collectionVariables.set('token', json.token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"usera@test.com\",\n  \"password\": \"Password123!\"\n}"
+        }
+      }
+    },
+    {
+      "name": "3) Create Workspace (set workspaceId)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('workspace created', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.collectionVariables.set('workspaceId', json.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/workspaces", "host": ["{{baseUrl}}"], "path": ["api", "workspaces"] },
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"My First Workspace\"\n}" }
+      }
+    },
+    {
+      "name": "4) Register User B",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"userb@test.com\",\n  \"password\": \"Password123!\",\n  \"fullName\": \"User B\"\n}"
+        }
+      }
+    },
+    {
+      "name": "5) Add User B as EDITOR to Workspace",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/members",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "workspaces", "{{workspaceId}}", "members"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"userb@test.com\",\n  \"role\": \"EDITOR\"\n}"
+        }
+      }
+    },
+    {
+      "name": "6) Create Page (set pageId)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('page created', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.collectionVariables.set('pageId', json.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/pages",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "workspaces", "{{workspaceId}}", "pages"]
+        },
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Getting Started\"\n}" }
+      }
+    },
+    {
+      "name": "7) Add Block A (set blockA)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('block created', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.collectionVariables.set('blockA', json.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pages/{{pageId}}/blocks",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "pages", "{{pageId}}", "blocks"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"PARAGRAPH\",\n  \"content\": \"{ \\\"text\\\": \\\"Hello Notion-Lite\\\" }\"\n}"
+        }
+      }
+    },
+    {
+      "name": "8) Add Block B after A (set blockB)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('block created', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.collectionVariables.set('blockB', json.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pages/{{pageId}}/blocks",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "pages", "{{pageId}}", "blocks"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"HEADING\",\n  \"content\": \"{ \\\"level\\\": 2, \\\"text\\\": \\\"Section 1\\\" }\",\n  \"afterBlockId\": \"{{blockA}}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "9) Add Block C at beginning (before A) (set blockC)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('block created', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.collectionVariables.set('blockC', json.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pages/{{pageId}}/blocks",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "pages", "{{pageId}}", "blocks"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"TODO\",\n  \"content\": \"{ \\\"text\\\": \\\"First task\\\", \\\"checked\\\": false }\",\n  \"beforeBlockId\": \"{{blockA}}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "10) List Blocks (ordered)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/api/pages/{{pageId}}/blocks",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "pages", "{{pageId}}", "blocks"]
+        }
+      }
+    },
+    {
+      "name": "11) Move Block B to beginning (before blockC)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/blocks/{{blockB}}/move",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "blocks", "{{blockB}}", "move"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"beforeBlockId\": \"{{blockC}}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "12) Update Block A content",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/blocks/{{blockA}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "blocks", "{{blockA}}"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"{ \\\"text\\\": \\\"Updated text\\\" }\"\n}"
+        }
+      }
+    },
+    {
+      "name": "13) Delete Block C",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/api/blocks/{{blockC}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "blocks", "{{blockC}}"]
+        }
+      }
+    }
+  ]
+}

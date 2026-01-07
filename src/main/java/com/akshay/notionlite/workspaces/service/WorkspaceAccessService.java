@@ -31,8 +31,16 @@ public class WorkspaceAccessService {
     }
 
     // Policy: return 404 to hide existence
-    public void requireMemberOr404(UUID workspaceId, UUID userId) {
-        memberRepo.findByIdWorkspaceIdAndIdUserId(workspaceId, userId)
+    public WorkspaceMemberEntity requireMemberOr404(UUID workspaceId, UUID userId) {
+        return memberRepo.findByIdWorkspaceIdAndIdUserId(workspaceId, userId)
                 .orElseThrow(() -> ApiException.notFound("Workspace not found"));
+    }
+
+    public WorkspaceMemberEntity requireAtLeastOr404(UUID workspaceId, UUID userId, WorkspaceRole minRole) {
+        WorkspaceMemberEntity m = requireMemberOr404(workspaceId, userId);
+        if (!m.getRole().atLeast(minRole)) {
+            throw ApiException.forbidden("Insufficient role: requires " + minRole);
+        }
+        return m;
     }
 }

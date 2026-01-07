@@ -47,7 +47,7 @@ public class WorkspaceController {
     @PatchMapping("/{workspaceId}")
     public WorkspaceRes update(@PathVariable UUID workspaceId, @RequestBody UpdateWorkspaceReq req) {
         UUID me = SecurityUtil.currentUserId();
-        access.requireAtLeast(workspaceId, me, WorkspaceRole.ADMIN);
+        access.requireAtLeastOr404(workspaceId, me, WorkspaceRole.ADMIN);
         return toRes(workspaceService.updateWorkspace(workspaceId, req.name()));
     }
 
